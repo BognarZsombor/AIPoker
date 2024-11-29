@@ -61,11 +61,22 @@
       _Game.handsRemaining = 5;
       _Game.redrawsRemaining = 3;
       _Game.pointsNeeded = 1e3;
+      _Game.handSize = 5;
       _Game.dealtCards = [];
       _Game.selectedCards = [];
+      _Game.playedCards = [];
     }
     static start() {
-      _Game.dealtCards = _Game.deck.deal(5);
+      _Game.dealtCards = _Game.deck.deal(_Game.handSize);
+      _Game.display();
+    }
+    static toogleCardSelection(card) {
+      if (_Game.selectedCards.includes(card)) {
+        _Game.deselectCard(card);
+      } else {
+        _Game.selectCard(card);
+      }
+      _Game.display();
     }
     static selectCard(card) {
       _Game.selectedCards.push(card);
@@ -97,16 +108,20 @@
       const points = _Game.calculatePoints();
       _Game.pointsNeeded -= points;
       _Game.highestScore = Math.max(_Game.highestScore, points);
+      _Game.display();
       if (_Game.checkLevelFinished()) {
         _Game.level++;
         _Game.handsRemaining = 5;
         _Game.redrawsRemaining = 3;
         _Game.pointsNeeded = 1e3;
+      } else if (_Game.checkGameOver()) {
+        _Game.init();
       }
     }
     static redrawAllCards() {
-      _Game.dealtCards = _Game.deck.deal(5);
+      _Game.dealtCards = _Game.deck.deal(_Game.handSize);
       _Game.selectedCards = [];
+      _Game.display();
     }
     static calculatePoints() {
       const points = _Game.selectedCards.reduce((acc, card) => {
@@ -132,12 +147,25 @@
       }
       return false;
     }
+    static display() {
+      const playerHand = document.getElementById("playerHand");
+      if (playerHand) {
+        playerHand.innerHTML = "";
+        _Game.dealtCards.forEach((card) => {
+          const cardElement = document.createElement("div");
+          cardElement.classList.add("card");
+          if (_Game.selectedCards.includes(card)) {
+            cardElement.classList.add("selected");
+          }
+          cardElement.innerHTML = `${card.rank} of ${card.suit}`;
+          cardElement.addEventListener("click", _Game.toogleCardSelection.bind(null, card));
+          playerHand.appendChild(cardElement);
+        });
+      }
+    }
   };
   document.addEventListener("DOMContentLoaded", () => {
     console.log("DOM is ready");
-    const playBtn = document.getElementById("playButton");
-    if (playBtn) {
-      playBtn.innerHTML = "Player's Hand";
-    }
+    Game.start();
   });
 })();

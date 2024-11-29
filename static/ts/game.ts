@@ -62,8 +62,10 @@ abstract class Game {
     static handsRemaining: number;
     static redrawsRemaining: number;
     static pointsNeeded: number;
+    static handSize: number;
     static dealtCards: PlayingCard[];
     static selectedCards: PlayingCard[];
+    static playedCards: PlayingCard[];
 
     static {
         Game.init();
@@ -77,12 +79,24 @@ abstract class Game {
         Game.handsRemaining = 5;
         Game.redrawsRemaining = 3;
         Game.pointsNeeded = 1000;
+        Game.handSize = 5;
         Game.dealtCards = [];
         Game.selectedCards = [];
+        Game.playedCards = [];
     }
 
     static start() {
-        Game.dealtCards = Game.deck.deal(5);
+        Game.dealtCards = Game.deck.deal(Game.handSize);
+        Game.display();
+    }
+
+    static toogleCardSelection(card: PlayingCard) {
+        if (Game.selectedCards.includes(card)) {
+            Game.deselectCard(card);
+        } else {
+            Game.selectCard(card);
+        }
+        Game.display();
     }
 
     static selectCard(card: PlayingCard) {
@@ -119,18 +133,22 @@ abstract class Game {
         const points = Game.calculatePoints();
         Game.pointsNeeded -= points;
         Game.highestScore = Math.max(Game.highestScore, points);
+        Game.display();
         
         if (Game.checkLevelFinished()) {
             Game.level++;
             Game.handsRemaining = 5;
             Game.redrawsRemaining = 3;
             Game.pointsNeeded = 1000;
+        } else if (Game.checkGameOver()) {
+            Game.init();
         }
     }
 
     static redrawAllCards() {
-        Game.dealtCards = Game.deck.deal(5);
+        Game.dealtCards = Game.deck.deal(Game.handSize);
         Game.selectedCards = [];
+        Game.display();
     }
 
     static calculatePoints() {
@@ -159,12 +177,32 @@ abstract class Game {
         }
         return false;
     }
+
+    static display() {
+        const playerHand = document.getElementById('playerHand');
+        if (playerHand) {
+            playerHand.innerHTML = '';
+            Game.dealtCards.forEach(card => {
+                const cardElement = document.createElement('div');
+                cardElement.classList.add('card');
+                if (Game.selectedCards.includes(card)) {
+                    cardElement.classList.add('selected');
+                }
+                cardElement.innerHTML = `${card.rank} of ${card.suit}`;
+                cardElement.addEventListener('click', Game.toogleCardSelection.bind(null, card));
+                playerHand.appendChild(cardElement);
+            });
+        }
+        // const playedCards = document.getElementById('playedCards');
+        // if (playedCards) {
+        //     playedCards.innerHTML = Game.playedCards.map(card => {
+        //         return `<div class="card">${card.rank} of ${card.suit}</div>`;
+        //     }).join('');
+        // }
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM is ready');
-    const playBtn = document.getElementById('playButton');
-    if (playBtn) {
-        playBtn.innerHTML = "Player's Hand";
-    }
+    Game.start();
 });
