@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="./css/game.css">
+</head>
+<body>
+    <div class="container">
+        <div class="player-hand" id="playerHand">
+            <!-- Player's initial hand will be added here -->
+        </div>
+    
+        <div class="played-cards" id="playedCards">
+            <!-- Played cards will be added here -->
+        </div>
+    
+        <div class="discard-pile" id="discardPile">
+            <!-- Discarded cards will be added here -->
+        </div>
+    
+        <div class="button-group">
+            <button id="playButton" disabled>Play Selected Cards</button>
+            <button id="replaceButton" disabled>Replace Cards</button>
+            <button id="resetButton">Reset Game</button>
+            <button id="sortByValueButton">Sort by Value</button>
+            <button id="sortBySuitButton">Sort by Suit</button>
+        </div>
+    
+        <div class="total-points">
+            Total Points: <span id="totalPoints">0</span>/<span id="thresholdPoints">0</span>
+        </div>
+        <div class="hands-played">
+            Hands Played: <span id="handsPlayedCount">1</span>/5
+        </div>
+        <div class="redraws">
+            Redraws: <span id="redrawsCount">0</span>/5
+        </div>
+        <div class="last-played">
+            <span id="lastPlayedHand"></span>
+        </div>
+        <div class="bonus-cards" id="bonusCards">
+            <!-- Bonus cards will be added here -->
+        </div>
+    </div>
+    
+    <script type="module" src="./js/bundle.js"></script>
+</body>
+</html>

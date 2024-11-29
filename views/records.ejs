@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/records.css">
+    <title>Records</title>
+</head>
+<body>
+    <header>
+        <h1>Player Records</h1>
+    </header>
+    <main id="recordsContainer">
+        <% players.forEach(function(player){ %>
+            <div class="deck-item">
+                <span><%= player.name %></span>
+                <span><%= player.score %></span>
+                <span><%= player.level %></span>
+            </div>
+        <% }); %>
+    </main>
+</body>
+</html>
