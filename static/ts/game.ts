@@ -1,3 +1,4 @@
+// import { createInterface } from 'readline';
 import { Suit, Rank, HandRank, PlayingCard, Deck } from './cards';
 import { Joker } from './joker';
 
@@ -42,7 +43,7 @@ export abstract class Game {
         Game.handsRemaining = Game.startingHandSize;
         Game.startingRedraws = 3;
         Game.redrawsRemaining = Game.startingRedraws;
-        Game.startingPoints = 1000;
+        Game.startingPoints = 10;
         Game.pointsNeeded = Game.startingPoints;
         Game.handSize = 10;
         Game.lastSortedBy = true;
@@ -107,10 +108,18 @@ export abstract class Game {
         
         if (Game.checkLevelFinished()) {
             Game.level++;
+            Game.createNewJoker();
             Game.initLevel();
         } else if (Game.checkGameOver()) {
             Game.sendGameOver();
         }
+        Game.display();
+    }
+
+    static async createNewJoker() {
+        const desc = prompt('Enter a description for the new joker: ');
+        const joker = await Joker.generateJoker(desc || "Choose a bonus card that you think is the best.");
+        Game.jokers.push(joker);
         Game.display();
     }
 
@@ -344,6 +353,17 @@ export abstract class Game {
                 cardElement.classList.add('card');
                 cardElement.innerHTML = `${card.rank} of ${card.suit}`;
                 playedCards.appendChild(cardElement);
+            });
+        }
+
+        const jokers = document.getElementById('jokers');
+        if (jokers) {
+            jokers.innerHTML = '';
+            Game.jokers.forEach(joker => {
+                const jokerElement = document.createElement('div');
+                jokerElement.classList.add('card');
+                jokerElement.innerHTML = `${joker.description}`;
+                jokers.appendChild(jokerElement);
             });
         }
 

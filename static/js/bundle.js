@@ -76,6 +76,33 @@
     }
   };
 
+  // static/ts/joker.ts
+  var Joker = class _Joker {
+    constructor(name, description, scoreFunction) {
+      this.name = name;
+      this.description = description;
+      this.scoreFunction = scoreFunction;
+    }
+    static async generateJoker(prompt2) {
+      const url = `/api`;
+      const inputData = {
+        desc: prompt2
+      };
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(inputData)
+      }).then((response) => response.json()).catch((error) => console.error("Error:", error));
+      const res_json = JSON.parse(res);
+      return new _Joker(res_json.name, res_json.description, new Function(res_json.function)());
+    }
+    getScore(cards) {
+      return this.scoreFunction(cards);
+    }
+  };
+
   // static/ts/game.ts
   var GameNameSpace;
   ((GameNameSpace2) => {
@@ -105,7 +132,7 @@
         Game.handsRemaining = Game.startingHandSize;
         Game.startingRedraws = 3;
         Game.redrawsRemaining = Game.startingRedraws;
-        Game.startingPoints = 1e3;
+        Game.startingPoints = 10;
         Game.pointsNeeded = Game.startingPoints;
         Game.handSize = 10;
         Game.lastSortedBy = true;
@@ -163,10 +190,17 @@
         Game.highestScore = Math.max(Game.highestScore, points);
         if (Game.checkLevelFinished()) {
           Game.level++;
+          Game.createNewJoker();
           Game.initLevel();
         } else if (Game.checkGameOver()) {
           Game.sendGameOver();
         }
+        Game.display();
+      }
+      static async createNewJoker() {
+        const desc = prompt("Enter a description for the new joker: ");
+        const joker = await Joker.generateJoker(desc || "Choose a bonus card that you think is the best.");
+        Game.jokers.push(joker);
         Game.display();
       }
       static sendGameOver() {
@@ -359,6 +393,16 @@
             cardElement.classList.add("card");
             cardElement.innerHTML = `${card.rank} of ${card.suit}`;
             playedCards.appendChild(cardElement);
+          });
+        }
+        const jokers = document.getElementById("jokers");
+        if (jokers) {
+          jokers.innerHTML = "";
+          Game.jokers.forEach((joker) => {
+            const jokerElement = document.createElement("div");
+            jokerElement.classList.add("card");
+            jokerElement.innerHTML = `${joker.description}`;
+            jokers.appendChild(jokerElement);
           });
         }
         const pointsNeeded = document.getElementById("pointsNeeded");
